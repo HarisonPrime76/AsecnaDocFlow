@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import com.mycompany.asecnadocflow.controller.HomeController;
 
 import java.io.IOException;
 
@@ -17,7 +18,11 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        scene = new Scene(loadFXML("home"), 1280, 664);
+        scene = new Scene(loadFXML("home"), 1280, 664);
+        stage.setTitle("Asecna DocFlow");
+        stage.setMinWidth(1024.0);
+        stage.setMinHeight(664.0);
         stage.setScene(scene);
         stage.show();
     }

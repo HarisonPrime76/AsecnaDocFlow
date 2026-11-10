@@ -1,0 +1,16 @@
+# Fichiers de compilation Maven
+/target/
+
+# Fichiers spécifiques à NetBeans
+/nbproject/private/
+/build/
+nbproject/build-impl.xml
+nbproject/project.properties
+nbproject/private/private.properties
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers de configuration db
+database.properties

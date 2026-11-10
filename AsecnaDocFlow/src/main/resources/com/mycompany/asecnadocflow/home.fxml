@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Pagination?>
+<?import javafx.scene.control.TableCell?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane fx:controller="com.mycompany.asecnadocflow.controller.HomeController" prefHeight="768.0" prefWidth="1200.0" style="-fx-background-color: #F8F9FA;"  xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+   <!-- Top Bar Header -->
+   <top>
+      <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-padding: 15 25 15 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 0, 2, 0, 0);" BorderPane.alignment="CENTER">
+         <children>
+            <!-- Zone Logo -->
+            <HBox alignment="CENTER" prefHeight="35.0" prefWidth="35.0">
+               <children>
+                  <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+                      <image>
+                          <Image url="@Asset/logo-asecna-2022.png"/>
+                      </image>
+                   </ImageView>
+               </children>
+            </HBox>
+            <VBox alignment="CENTER_LEFT">
+               <children>
+                  <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Asecna DocFlow" />
+                  <Label style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="Version 0.99 Beta" />
+               </children>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" styleClass="btn-secondary" text="Déconnexion" />
+         </children>
+      </HBox>
+   </top>
+
+   <!-- Contenu Central -->
+   <center>
+      <VBox spacing="20.0" style="-fx-padding: 25;">
+         <children>
+            
+            <!-- Accordéon de saisie et OCR -->
+            <Accordion fx:id="formAccordion">
+              <panes>
+                <TitledPane animated="true" text="Ajouter un Document">
+                  <content>
+                    <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 20;">
+                       <children>
+                          <!-- Section OCR -->
+                          <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #F0F7FF; -fx-padding: 8; -fx-background-radius: 6; -fx-border-color: #BCE0FD; -fx-border-radius: 6;">
+                             <children>
+                                <Label style="-fx-font-weight: bold; -fx-text-fill: #0063B1;" text="Importation OCR :" />
+                                <Label style="-fx-text-fill: #475569;" text="Téléchargez une image ou PDF de facture pour pré-remplir automatiquement le formulaire." />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button mnemonicParsing="false" styleClass="btn-primary" text="Scanner un document (OCR)" />
+                             </children>
+                          </HBox>
+
+                          <!-- Formulaire de saisie -->
+                          <GridPane hgap="15.0" vgap="12.0">
+                             <children>
+                                <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                   <children>
+                                      <Label styleClass="form-label" text="N° Facture" />
+                                      <TextField fx:id="numFactureField" promptText="FAC-2026-001" styleClass="custom-textfield" />
+                                   </children>
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                   <children>
+                                      <Label styleClass="form-label" text="Désignation" />
+                                      <TextField fx:id="designationField" promptText="Description du produit" styleClass="custom-textfield" />
+                                   </children>
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                   <children>
+                                      <Label styleClass="form-label" text="Origine" />
+                                      <TextField fx:id="fournisseurField" promptText="Fournisseur" styleClass="custom-textfield" />
+                                   </children>
+                                </VBox>
+
+                                <VBox spacing="4.0" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                   <children>
+                                      <Label styleClass="form-label" text="Quantité" />
+                                      <TextField fx:id="quantiteField" promptText="1" styleClass="custom-textfield" />
+                                   </children>
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="4" GridPane.rowIndex="0">
+                                   <children>
+                                      <Label styleClass="form-label" text="Prix Unitaire (Ar)" />
+                                      <TextField fx:id="puField" promptText="0.00" styleClass="custom-textfield" />
+                                   </children>
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="5" GridPane.rowIndex="0">
+                                   <children>
+                                      <Label styleClass="form-label" text="Date de Réception" />
+                                      <DatePicker fx:id="dateReceptionPicker" maxWidth="1.7976931348623157E308" styleClass="custom-textfield" promptText="jj/mm/aaaa"/>
+                                   </children>
+                                </VBox>
+                                <VBox spacing="4.0" GridPane.columnIndex="6" GridPane.rowIndex="0">
+                                   <children>
+                                      <Label styleClass="form-label" text="Lieu de Réception" />
+                                      <TextField fx:id="lieuReceptionField" promptText="Entrepôt, Siège..." styleClass="custom-textfield" />
+                                   </children>
+                                </VBox>
+                             </children>
+                          </GridPane>
+
+                          <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                             <children>
+                                <Button fx:id="viderChampsFormulaire" mnemonicParsing="false" styleClass="btn-secondary" text="Réinitialiser" onAction="#viderChampsFormulaire"  />
+                                <Button fx:id="handleEnregistrerProduit" mnemonicParsing="false" styleClass="btn-primary" text="Enregistrer la Facture" onAction="#handleEnregistrerProduit" />
+                             </children>
+                          </HBox>
+                       </children>
+                    </VBox>
+                  </content>
+                </TitledPane>
+              </panes>
+            </Accordion>
+
+            <!-- Barre de Recherche, Filtres et Actions Grouppées -->
+            <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: white; -fx-padding: 8; -fx-background-radius: 6; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 5, 0, 0, 2);">
+               <children>
+                  <CheckBox fx:id="selectAllCheckBox" mnemonicParsing="false" text="Tout sélectionner" style="-fx-text-fill: #475569;" />
+                  <Button fx:id="deleteGroupBtn" disable="true" mnemonicParsing="false" styleClass="btn-danger" text="Supprimer la sélection" />
+                  
+                  <Region HBox.hgrow="ALWAYS" />
+
+                  <ComboBox fx:id="filterCategoryCombo" promptText="Filtrer par..." styleClass="custom-combo" prefWidth="150.0" />
+                  <TextField fx:id="searchField" prefWidth="250.0" promptText="Rechercher une facture..." styleClass="custom-textfield" />
+                  <Button mnemonicParsing="false" styleClass="btn-primary" text="Rechercher" />
+               </children>
+            </HBox>
+
+            <!-- Tableau des Factures (Affichage par 15) -->
+            <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 8; -fx-background-radius: 6; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 5, 0, 0, 2);" VBox.vgrow="ALWAYS">
+               <children>
+                  <TableView fx:id="factureTable" styleClass="custom-table" VBox.vgrow="ALWAYS">
+                    <columns>
+                      <TableColumn prefWidth="40.0" text="Sél." />
+                      <TableColumn fx:id="colNumFacture" prefWidth="100.0" text="N° Facture" />
+                      <TableColumn fx:id="colDesignation" prefWidth="300.0" text="Désignation" />
+                      <TableColumn fx:id="colQuantite" prefWidth="80.0" text="Qté" />
+                      <TableColumn fx:id="colPrixUnitaire" prefWidth="100.0" text="P.U" />
+                      <TableColumn fx:id="colPrixTotal" prefWidth="100.0" text="Prix Total" />
+                      <TableColumn fx:id="colFournisseur" prefWidth="120.0" text="Origine" />
+                      <TableColumn fx:id="colDateReception" prefWidth="110.0" text="Date Réception" />
+                      <TableColumn fx:id="colLieuReception" prefWidth="130.0" text="Lieu Réception" />
+                      <TableColumn fx:id="colAction" prefWidth="120.0" text="Actions" />
+                    </columns>
+                  </TableView>
+                  <!-- Pagination -->
+                  <HBox alignment="CENTER" style="-fx-padding: 5 0 0 0;">
+                     <children>
+                        <Pagination fx:id="pagination" maxPageIndicatorCount="5" pageCount="10" prefHeight="45.0" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
