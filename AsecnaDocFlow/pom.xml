@@ -24,11 +24,13 @@
             <groupId>net.sourceforge.tess4j</groupId>
             <artifactId>tess4j</artifactId>
             <version>5.13.0</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>3.0.1</version>
+            <type>jar</type>
         </dependency>
         <dependency>
         <groupId>org.postgresql</groupId>

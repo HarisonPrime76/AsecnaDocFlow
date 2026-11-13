@@ -60,15 +60,21 @@
                   <content>
                     <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 20;">
                        <children>
-                          <!-- Section OCR -->
-                          <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #F0F7FF; -fx-padding: 8; -fx-background-radius: 6; -fx-border-color: #BCE0FD; -fx-border-radius: 6;">
-                             <children>
-                                <Label style="-fx-font-weight: bold; -fx-text-fill: #0063B1;" text="Importation OCR :" />
-                                <Label style="-fx-text-fill: #475569;" text="Téléchargez une image ou PDF de facture pour pré-remplir automatiquement le formulaire." />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Button mnemonicParsing="false" styleClass="btn-primary" text="Scanner un document (OCR)" />
-                             </children>
-                          </HBox>
+                                                    <!-- Exemple de section OCR dans home.fxml -->
+                           <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #F0F7FF; -fx-padding: 12; -fx-background-radius: 6; -fx-border-color: #BCE0FD; -fx-border-radius: 6;">
+                              <children>
+                                 <Label style="-fx-font-weight: bold; -fx-text-fill: #0063B1;" text="Importation OCR :" />
+                                 <Label style="-fx-text-fill: #475569;" text="Sélectionnez une image ou un PDF." />
+
+                                 <!-- La case à cocher pour choisir le mode -->
+                                 <CheckBox fx:id="autoSaveOcrCheckbox" mnemonicParsing="false" text="Enregistrement auto (sans confirmation)" style="-fx-text-fill: #0063B1; -fx-font-weight: bold;" />
+
+                                 <Region HBox.hgrow="ALWAYS" />
+
+                                 <!-- Votre bouton existant mis à jour avec le bon fx:id et onAction -->
+                                 <Button fx:id="btnScanOcr" mnemonicParsing="false" onAction="#handleOcrScan" styleClass="btn-primary" text="Scanner un document (OCR)" />
+                              </children>
+                           </HBox>
 
                           <!-- Formulaire de saisie -->
                           <GridPane hgap="15.0" vgap="12.0">
