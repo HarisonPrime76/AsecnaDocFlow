@@ -8,15 +8,15 @@ package com.mycompany.asecnadocflow.model;
  * @author Ivan Elric
  */
 public class ProductModel {
-    private int id;
-    private String numFacture;
-    private String designation;
-    private int quantite;
-    private double prixUnitaire;
-    private double prixTotal;
-    private String fournisseur;
-    private String lieuReception;
-    private String dateReception;
+    private final int id;
+    private final String numFacture;
+    private final String designation;
+    private final int quantite;
+    private final double prixUnitaire;
+    private final double prixTotal;
+    private final String fournisseur;
+    private final String lieuReception;
+    private final String dateReception;
     
     public ProductModel(int id, String numFacture, String designation, int quantite, double prixUnitaire, double prixTotal, String fournisseur, String lieuReception, String dateReception) {
         this.id = id;

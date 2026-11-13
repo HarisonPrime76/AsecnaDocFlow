@@ -6,12 +6,18 @@ package com.mycompany.asecnadocflow.controller;
 
 import com.mycompany.asecnadocflow.request.Request;
 import com.mycompany.asecnadocflow.model.ProductModel;
+import com.mycompany.asecnadocflow.service.ScanService;
+import java.io.File;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import java.time.LocalDate;
 import java.util.List;
+import javafx.stage.FileChooser;
+import java.time.LocalDate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -39,6 +45,11 @@ public class HomeController {
     @FXML private TextField puField;
     @FXML private DatePicker dateReceptionPicker;
     @FXML private TextField lieuReceptionField;
+    
+    @FXML private Button btnScanOcr;
+    @FXML private CheckBox autoSaveOcrCheckbox;
+
+// (Assurez-vous d'avoir aussi vos champs de texte : numFactureField, designationField, etc.)
 
     private final Request request = new Request();
     private final int LIGNES_PAR_PAGE = 15;
@@ -68,7 +79,7 @@ public class HomeController {
     
 
     private void configurerPagination() {
-        int totalProduits = this.request.compterTotalProduits();
+        int totalProduits = request.compterTotalProduits();
         int nombreTotalPages = (int) Math.ceil((double) totalProduits / LIGNES_PAR_PAGE);
         pagination.setPageCount(nombreTotalPages > 0 ? nombreTotalPages : 1);
 
@@ -224,6 +235,133 @@ public class HomeController {
             rafraichirDonnees();
         } else {
             afficherMessageModulable("Erreur", "L'opération a échoué dans la base de données.", Alert.AlertType.ERROR);
+        }
+    }
+    
+    @FXML
+    private void handleOcrScan() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Sélectionner une facture (Image ou PDF)");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Documents compatibles", "*.pdf", "*.png", "*.jpg", "*.jpeg"),
+            new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf"),
+            new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
+        );
+        File fichierSelectionne = fileChooser.showOpenDialog(btnScanOcr.getScene().getWindow());
+        
+        if (fichierSelectionne != null) {
+        ScanService scanService = new ScanService();
+        String texteBrut = scanService.extraireTexte(fichierSelectionne);
+
+        if (texteBrut != null && !texteBrut.trim().isEmpty()) {
+            // On transforme le texte brut en DBModel
+            ProductModel documentScanne = parserTexteFacture(texteBrut);
+
+            if (autoSaveOcrCheckbox.isSelected()) {
+                // --- MODE AUTOMATIQUE : Appel de AddDocument avec tous les paramètres ---
+                boolean succes = request.AddDocument(
+                    documentScanne.getNumFacture(),
+                    documentScanne.getDesignation(),
+                    documentScanne.getQuantite(),
+                    documentScanne.getPrixUnitaire(),
+                    documentScanne.getPrixTotal(),
+                    documentScanne.getFournisseur(),
+                    documentScanne.getLieuReception(),
+                    documentScanne.getDateReception()
+                );
+
+                if (succes) {
+                    afficherMessageModulable("Succès", "Document scanné et enregistré automatiquement en base.", Alert.AlertType.INFORMATION);
+                    rafraichirDonnees();
+                } else {
+                    afficherMessageModulable("Erreur", "Échec de l'enregistrement en base de données.", Alert.AlertType.ERROR);
+                }
+            } else {
+                // --- MODE MANUEL : Pré-remplissage des champs du formulaire ---
+                numFactureField.setText(documentScanne.getNumFacture());
+                designationField.setText(documentScanne.getDesignation());
+                quantiteField.setText(String.valueOf(documentScanne.getQuantite()));
+                // (Ajoutez les autres champs texte / datePicker selon votre interface)
+                
+                afficherMessageModulable("Scan OCR Réussi", "Veuillez vérifier les informations dans le formulaire.", Alert.AlertType.INFORMATION);
+            }
+        } else {
+            afficherMessageModulable("Erreur OCR", "Aucun texte n'a pu être extrait du document.", Alert.AlertType.ERROR);
+        }
+       }
+    }
+    
+
+
+
+
+    private ProductModel parserTexteFacture(String texteBrut) {
+        // 1. Extraction du numéro de facture (ex: FACTURE N° 2026-MG-2381)
+        String numFacture = extraireChamp(texteBrut, "FACTURE\\s*N[°o0]?\\s*[:\\-]?\\s*([A-Z0-9\\-]+)", "FAC-AUTO-001");
+
+        // 2. Extraction de la date du bordereau (ex: Date bordereau: 28/10/2026) -> mappe vers dateReception
+        String dateBordereau = extraireChamp(texteBrut, "Date\\s+bordereau\\s*:?\\s*(\\d{2}/\\d{2}/\\d{4})", LocalDate.now().toString());
+
+        // 3. Extraction de l'origine (ex: Origine: IVATO) -> mappe vers lieuReception
+        String origine = extraireChamp(texteBrut, "Origine\\s*:?\\s*([A-ZÀ-Ÿ0-9\\s\\-]+?)(?:\\r?\\n|$)", "Antananarivo");
+
+        // 4. Extraction du fournisseur (valeur par défaut ASECNA / DGRP si absent)
+        String fournisseur = extraireChamp(texteBrut, "Fournisseur\\s*:?\\s*(.+?)(?:\\r?\\n|$)", "ASECNA / DGRP");
+
+        // 5. Extraction de la ligne du tableau (Désignation | Quantité | P.U | Prix total)
+        String designation = "Article non détecté";
+        int quantite = 1;
+        double prixUnitaire = 0.0;
+        double prixTotal = 0.0;
+
+        Pattern patternTableau = Pattern.compile(
+            "Désignation.*?Prix\\s*total\\s*\\r?\\n+(.+?)\\s+(\\d+)\\s+([\\d\\s.,]+)\\s*Ar\\s+([\\d\\s.,]+)\\s*Ar",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL
+        );
+        Matcher matcherTableau = patternTableau.matcher(texteBrut);
+
+        if (matcherTableau.find()) {
+            designation = matcherTableau.group(1).trim().replaceAll("\\s+", " ");
+            quantite = Integer.parseInt(matcherTableau.group(2).trim());
+            prixUnitaire = convertirMontant(matcherTableau.group(3));
+            prixTotal = convertirMontant(matcherTableau.group(4));
+        }
+
+        // Sécurité : si prixTotal n'a pas été lu mais que P.U et Qté existent, on le calcule
+        if (prixTotal == 0.0 && prixUnitaire > 0.0) {
+            prixTotal = quantite * prixUnitaire;
+        }
+
+        // Retourne l'instance exacte de votre ProductModel (9 paramètres)
+        return new ProductModel(
+            0,              // id (généré automatiquement par votre BDD)
+            numFacture,     // numFacture
+            designation,    // designation
+            quantite,       // quantite
+            prixUnitaire,   // prixUnitaire
+            prixTotal,      // prixTotal
+            fournisseur,    // fournisseur
+            origine,        // lieuReception
+            dateBordereau   // dateReception
+        );
+    }
+
+    // Utilitaire 1 : Extrait un texte selon une Regex ou renvoie la valeur par défaut
+    private String extraireChamp(String texte, String regex, String defaut) {
+        Matcher matcher = Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(texte);
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        }
+        return defaut;
+    }
+
+    // Utilitaire 2 : Convertit un montant texte (ex: "15 000" ou "1") en double
+    private double convertirMontant(String valeur) {
+        try {
+            String propre = valeur.replaceAll("[^0-9,.]", "").replace(",", ".");
+            return Double.parseDouble(propre);
+        } catch (NumberFormatException e) {
+            return 0.0;
         }
     }
 
