@@ -8,6 +8,7 @@ package com.mycompany.asecnadocflow.service;
  *
  * @author Ivan Elric
  */
+
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.pdfbox.Loader;
@@ -19,18 +20,23 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class ScanService {
+public class OcrService {
 
+    private static OcrService instance;
     private final Tesseract tesseract;
 
-    public ScanService() {
+    private OcrService() {
         tesseract = new Tesseract();
-        // Dossier contenant le fichier fra.traineddata
         tesseract.setDatapath("src/main/resources/tessdata");
-        // Langue française pour les factures
         tesseract.setLanguage("fra");
-        // Améliore la détection des blocs de texte structurés (factures)
         tesseract.setPageSegMode(3);
+    }
+
+    public static synchronized OcrService getInstance() {
+        if (instance == null) {
+            instance = new OcrService();
+        }
+        return instance;
     }
 
     public String extraireTexte(File fichier) {
@@ -39,12 +45,10 @@ public class ScanService {
         }
 
         String nomFichier = fichier.getName().toLowerCase();
-
         try {
             if (nomFichier.endsWith(".pdf")) {
                 return extraireDepuisPdf(fichier);
             } else {
-                // Traitement direct pour PNG, JPG, JPEG
                 return tesseract.doOCR(fichier);
             }
         } catch (Exception e) {
@@ -55,19 +59,15 @@ public class ScanService {
 
     private String extraireDepuisPdf(File fichierPdf) throws IOException, TesseractException {
         StringBuilder texteComplet = new StringBuilder();
-
         try (PDDocument document = Loader.loadPDF(fichierPdf)) {
             PDFRenderer pdfRenderer = new PDFRenderer(document);
             int nombrePages = document.getNumberOfPages();
 
             for (int page = 0; page < nombrePages; page++) {
-                // Rendu en 300 DPI pour une lecture précise des petits caractères
                 BufferedImage imagePage = pdfRenderer.renderImageWithDPI(page, 300, ImageType.RGB);
-                String textePage = tesseract.doOCR(imagePage);
-                texteComplet.append(textePage).append("\n");
+                texteComplet.append(tesseract.doOCR(imagePage)).append("\n");
             }
         }
-
         return texteComplet.toString();
     }
 }

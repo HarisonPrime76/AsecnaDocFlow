@@ -29,7 +29,7 @@ public class ProductDAO {
             "DELETE FROM product WHERE id = ?";
     private static final String SQL_SELECT_PAGINATED =
             "SELECT * FROM product ORDER BY id DESC LIMIT ? OFFSET ?";
-    private static final String SQL_COUNT =
+    private static final String SQL_COUNT = 
             "SELECT COUNT(*) FROM product";
     private static final String SQL_SEARCH_PAGINATED =
         "SELECT * FROM product WHERE num_facture LIKE ? OR designation LIKE ? OR fournisseur LIKE ? OR lieu_reception LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?";
